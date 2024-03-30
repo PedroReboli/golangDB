@@ -48,7 +48,7 @@ func (br *ByteReader) GetBytes(size int16) []byte{
 }
 
 func (br *ByteReader) GetString(size int16) string{
-	println("Get string size", size)
+	// println("Get string size", size)
 	v := br.data[br.pos:br.pos+uint64(size)]
 	br.pos += uint64(size)
 	return string(v)
@@ -83,7 +83,7 @@ func GetBytesAt(data []byte, pos uint64, size int16) []byte{
 }
 
 func GetStringAt(data []byte, pos uint64, size int16) string{
-	println("string size", size)
+	// println("string size", size)
 	v := data[pos:pos+uint64(size)]
 	pos += uint64(size)
 	return string(v)

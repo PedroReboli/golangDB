@@ -33,6 +33,13 @@ const(
 	number
 	colon
 	EOF
+	equal
+	exclamation
+	lessThan
+	greaterThan
+	plus
+	minus
+	comma
 	None
 )
 
@@ -46,6 +53,11 @@ var tnum = []string{"hummm",
 	"number",
 	"colon",
 	"EOF",
+	"equal",
+	"exclamation",
+	"plus",
+	"minus",
+	"comma",
 	"None"}
 
 
@@ -54,16 +66,6 @@ type Token struct{
 	Option string
 }
 
-// type ColunType struct{
-// 	Name string
-// 	Type BasicTypes
-// 	TypeOptions int
-// }
-
-// type Table struct{
-// 	TableName string
-// 	Coluns []ColunType
-// }
 
 func getBasicType(basicType string) BasicTypes{
 	basicType = strings.TrimSpace(basicType)
@@ -95,35 +97,6 @@ func getBasicType(basicType string) BasicTypes{
 	}
 }
 
-// func getTypeBasicType(basicType string) BasicTypes{
-// 	basicType = strings.TrimSpace(basicType)
-// 	switch basicType{
-// 	case "uint8":
-// 		return uint8Type
-// 	case "uint16":
-// 		return uint16Type
-// 	case "uint32":
-// 		return uint32Type
-// 	case "uint64":
-// 		return uint64Type
-// 	case "int8":
-// 		return int8Type
-// 	case "int16":
-// 		return int16Type
-// 	case "int32":
-// 		return int32Type
-// 	case "int64":
-// 		return int64Type
-// 	case "string":
-// 		return stringType
-// 	case "binary":
-// 		return binaryType
-// 	case "bool":
-// 		return boolType
-// 	default:
-// 		panic(fmt.Sprintf("type %s does not exist", basicType))
-// 	}
-// }
 
 func ReadUntilNextSepToken(code string) (string, tokenEnum, string){
 	hasSeparator := strings.ContainsAny(code, "{}():\n")
@@ -147,6 +120,16 @@ func ReadUntilNextSepToken(code string) (string, tokenEnum, string){
 			return builder.String(), colon, code[i:]
 		case '\n':
 			return builder.String(), newLine, code[i:]
+		case '-':
+			return builder.String(), minus, code[i:]
+		case '+':
+			return builder.String(), plus, code[i:]
+		case '!':
+			return builder.String(), exclamation, code[i:]
+		case '=':
+			return builder.String(), equal, code[i:]
+		case ',':
+			return builder.String(), equal, code[i:]
 		default:
 			builder.WriteRune(r)
 		}
@@ -154,7 +137,7 @@ func ReadUntilNextSepToken(code string) (string, tokenEnum, string){
 	panic("unexpected EOF?")
 }
 
-func Tokenize(code string) []Token{
+func TableTokenize(code string) []Token{
 	x := make([]Token, 0)
 	val, token, rest := ReadUntilNextSepToken(code)
 	for token != EOF{
@@ -204,6 +187,34 @@ func expectToken(tokens []Token, expect tokenEnum, skipToken tokenEnum) ([]Token
 	panic("token not found")
 }
 
+func expectMultipleTokens(tokens []Token, expect []tokenEnum, skipToken []tokenEnum) ([]Token, Token) {
+	for i, token := range tokens{
+		for _,ex := range expect{
+			if token.Token == ex {
+				return tokens[i+1:], token
+			}
+		}
+		found_skip := false
+		for _,skip := range skipToken{
+			if token.Token == skip{
+				found_skip = true
+				break
+			}
+		}
+		if found_skip{
+			continue
+		}
+		expected := ""
+		for _,ex := range expect{
+			expected += tnum[ex]+", "
+		}
+		println("expected",expected)
+		println("found",tnum[token.Token])
+		panic("unexpected token")
+	}
+	panic("token not found")
+}
+
 func expectColumn(tokens []Token) ([]Token, ColunType){
 	var name string
 	var columnType BasicTypes
@@ -246,7 +257,9 @@ func expectTable(tokens []Token) ([]Token, Table){
 	}
 }
 
-func TokenParser(tokens []Token) Table{
+
+
+func TableTokenParser(tokens []Token) Table{
 	_, tt := expectTable(tokens)
 	return tt
 	// println(tt.TableName)

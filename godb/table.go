@@ -245,7 +245,7 @@ func OpenFile(file string) Table{
 	
 	ByteReader := NewByteReader(headSizeByte)
 	headerSize :=ByteReader.GetUint16()
-	println(headerSize)
+	// println(headerSize)
 	// t.headSize =  uint16(len(byteOutput))+1
 	header := make([]byte, headerSize)
 	fileHand.ReadAt(header,2)
@@ -326,8 +326,8 @@ func (t* Table)CalculateSerizalization(){
 func(t* Table) InsertRow(values []any){
 	t.CalculateSerizalization()
 	byt := make([]byte, t.rowSize+1)
-	println(len(values))
-	println(len(t.Coluns))
+	// println(len(values))
+	// println(len(t.Coluns))
 	size := 0
 	for _,z := range Zip(t.Coluns, values){
 		if z.First.Type == boolType{
@@ -341,8 +341,8 @@ func(t* Table) InsertRow(values []any){
 		size += len(z.First.TypeToByteArray(z.Second))
 		// byt = append(byt, z.First.TypeToByteArray(z.Second)...)
 	}
-	println("expected len", t.rowSize)
-	println("found len", size)
+	// println("expected len", t.rowSize)
+	// println("found len", size)
 	(*t.File).Seek(0,io.SeekEnd)
 	_, _ = (*t.File).Write(byt)
 }
@@ -353,9 +353,9 @@ func(t* Table) Close(){
 func(t* Table) ReadAllRows() {
 	
 	// t.row_size
-	i, err := t.File.Seek(int64(t.headSize),io.SeekStart)
-	println(i)
-	println(err)
+	_, _ = t.File.Seek(int64(t.headSize),io.SeekStart)
+	// println(i)
+	// println(err)
 	rowBytes := make([]byte, t.rowSize+1)
 	// rowParsed := make([]any, len(t.Coluns))
 	for{
